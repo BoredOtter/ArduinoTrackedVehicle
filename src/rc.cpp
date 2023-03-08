@@ -2,7 +2,7 @@
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
-#include <structs.h>
+#include "arc.h"
 
 
 RF24 radio(9, 10); // CE, CSN
@@ -60,27 +60,9 @@ void loop()
     Serial.println();
     //
 
-    //choosing motor directions in DFRobot L298N 
-    if (motorControlData.motor1speed<0)
-    {
-      digitalWrite(motor1.controlPin,HIGH);
-    }
-    else if(motorControlData.motor1speed>0)
-    {
-      digitalWrite(motor1.controlPin,LOW);
-    }
-    analogWrite(motor1.pwmPin,abs(motorControlData.motor1speed));
-    
-    ///2nd motor
-    if (motorControlData.motor2speed<0)
-    {
-      digitalWrite(motor2.controlPin,LOW);
-    }
-    else if(motorControlData.motor2speed>0)
-    {
-      digitalWrite(motor2.controlPin,HIGH);
-    }
-    analogWrite(motor2.pwmPin,abs(motorControlData.motor2speed));
+    //motorHandling
+    motorHandling(motorControlData,motor1,motor2);
+
 
     radioWaitTime=0;
   }

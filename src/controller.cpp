@@ -2,16 +2,9 @@
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
-#include "structs.h"
+#include "arc.h"
 
-int analogReadCorrection(int x)
-{
-    if ( abs(x)<10 )
-    {
-        x = 0;
-    }
-    return x;
-}
+
 
 
 //left joy
