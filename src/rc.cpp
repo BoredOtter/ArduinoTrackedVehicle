@@ -5,7 +5,6 @@
 #include <structs.h>
 
 
-
 RF24 radio(9, 10); // CE, CSN
 const byte address[6] = "00001";
 
@@ -15,11 +14,12 @@ MotorControlData motorControlData;
 DCMotor motor1; //left
 DCMotor motor2; //right
 
+unsigned long radioWaitTime=0;
+const unsigned long radioTimeOut=30;
+
 void setup() 
 {
   //DC motor setup using structs
-
-
   motor1.controlPin=7;
   motor1.pwmPin    =6;
 
@@ -28,6 +28,9 @@ void setup()
 
   pinMode(motor1.controlPin,OUTPUT);
   pinMode(motor2.controlPin,OUTPUT);
+
+  pinMode(motor1.pwmPin,OUTPUT);
+  pinMode(motor2.pwmPin,OUTPUT);
   //
 
   Serial.begin(9600);
@@ -45,49 +48,68 @@ void loop()
 
   if (radio.available())              //Looking for the data.
   {
-      radio.read(&motorControlData, sizeof(motorControlData));    //Reading the data
+
+    radio.read(&motorControlData, sizeof(motorControlData));    //Reading the data
 
 
-      //serial debug info
-      Serial.print("RC: ");
-      Serial.print(motorControlData.motor1speed);
-      Serial.print("  ");
-      Serial.print(motorControlData.motor2speed);
-      Serial.println();
-      //
+    //serial debug info
+    Serial.print("RC: ");
+    Serial.print(motorControlData.motor1speed);
+    Serial.print("  ");
+    Serial.print(motorControlData.motor2speed);
+    Serial.println();
+    //
 
     //choosing motor directions in DFRobot L298N 
     if (motorControlData.motor1speed<0)
     {
       digitalWrite(motor1.controlPin,HIGH);
-      analogWrite(motor1.pwmPin,abs(motorControlData.motor1speed));
     }
     else if(motorControlData.motor1speed>0)
     {
       digitalWrite(motor1.controlPin,LOW);
-      analogWrite(motor1.pwmPin,abs(motorControlData.motor1speed));
     }
-    else if (motorControlData.motor1speed==0)
-    {
-      analogWrite(motor1.pwmPin,0);
-    }
+    analogWrite(motor1.pwmPin,abs(motorControlData.motor1speed));
     
     ///2nd motor
     if (motorControlData.motor2speed<0)
     {
       digitalWrite(motor2.controlPin,LOW);
-      analogWrite(motor2.pwmPin,abs(motorControlData.motor2speed));
     }
     else if(motorControlData.motor2speed>0)
     {
       digitalWrite(motor2.controlPin,HIGH);
-      analogWrite(motor2.pwmPin,abs(motorControlData.motor2speed));
     }
-    else if (motorControlData.motor2speed==0)
-    {
-      analogWrite(motor2.pwmPin,0);
-    }
-  }
+    analogWrite(motor2.pwmPin,abs(motorControlData.motor2speed));
 
-  Serial.println("          !Radio");
+    radioWaitTime=0;
+  }
+  else
+  {
+    while (!radio.available())
+    {
+      delay(1);
+      radioWaitTime++;
+
+      if (radioWaitTime>radioTimeOut)
+      {
+        Serial.print("        Radio non availale: ");
+        Serial.print(radioWaitTime);
+        Serial.println();
+
+        motorControlData.motor1speed=0;
+        motorControlData.motor2speed=0;
+      }
+      
+    }
+    
+  }
+  
+  // if (radioWaitTime<=radioTimeOut)
+  // {
+  //   Serial.print("            RWT: ");
+  //   Serial.print(radioWaitTime);
+  //   Serial.println();
+  // }
+
 }

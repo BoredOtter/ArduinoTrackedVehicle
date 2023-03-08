@@ -6,7 +6,7 @@
 
 int analogReadCorrection(int x)
 {
-    if ( abs(x)<3 )
+    if ( abs(x)<10 )
     {
         x = 0;
     }
