@@ -14,17 +14,23 @@ MotorControlData motorControlData;
 DCMotor motor1; //left
 DCMotor motor2; //right
 
-unsigned long radioWaitTime=0;
+unsigned long radioWaitCycle=0;
 const unsigned long radioTimeOut=30;
 
 void setup() 
 {
   //DC motor setup using structs
-  motor1.controlPin=7;
-  motor1.pwmPin    =6;
+  // motor1.controlPin=7;
+  // motor1.pwmPin    =6;
 
-  motor2.controlPin=4;
-  motor2.pwmPin    =5;
+  // motor2.controlPin=4;
+  // motor2.pwmPin    =5;
+
+  motor1.controlPin=4;
+  motor1.pwmPin    =5;
+
+  motor2.controlPin=7;
+  motor2.pwmPin    =6;
 
   pinMode(motor1.controlPin,OUTPUT);
   pinMode(motor2.controlPin,OUTPUT);
@@ -53,45 +59,39 @@ void loop()
 
 
     //serial debug info
-    Serial.print("RC: ");
-    Serial.print(motorControlData.motor1speed);
-    Serial.print("  ");
-    Serial.print(motorControlData.motor2speed);
-    Serial.println();
+    // Serial.print("RC: ");
+    // Serial.print(motorControlData.motor1speed);
+    // Serial.print("  ");
+    // Serial.print(motorControlData.motor2speed);
+    // Serial.println();
     //
 
     //motorHandling
     motorHandling(motorControlData,motor1,motor2);
 
 
-    radioWaitTime=0;
+    radioWaitCycle=0;
   }
   else
   {
     while (!radio.available())
     {
       delay(1);
-      radioWaitTime++;
+      radioWaitCycle++;
 
-      if (radioWaitTime>radioTimeOut)
+      if (radioWaitCycle>radioTimeOut)
       {
-        Serial.print("        Radio non availale: ");
-        Serial.print(radioWaitTime);
-        Serial.println();
+        // Serial.print("        Radio non availale: ");
+        // Serial.print(radioWaitCycle);
+        // Serial.println();
 
         motorControlData.motor1speed=0;
         motorControlData.motor2speed=0;
+        motorHandling(motorControlData,motor1,motor2);
       }
       
     }
     
   }
-  
-  // if (radioWaitTime<=radioTimeOut)
-  // {
-  //   Serial.print("            RWT: ");
-  //   Serial.print(radioWaitTime);
-  //   Serial.println();
-  // }
 
 }

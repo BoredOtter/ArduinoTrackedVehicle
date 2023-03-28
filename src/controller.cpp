@@ -48,8 +48,8 @@ void loop()
     leftPosition=analogRead(left);
     rightPosition=analogRead(right);
 
-    motorControlData.motor1speed=analogReadCorrection(map(leftPosition,0,1023,255,-255)); //left
-    motorControlData.motor2speed=analogReadCorrection(map(rightPosition,0,1023,255,-255));//right
+    motorControlData.motor1speed=analogReadCorrection(map(leftPosition,0,1023,255,-255),35); //left
+    motorControlData.motor2speed=analogReadCorrection(map(rightPosition,0,1023,255,-255),35);//right
 
     //serial debug info
     Serial.print("CONTROLL ");

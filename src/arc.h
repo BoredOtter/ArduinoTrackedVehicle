@@ -12,9 +12,9 @@ struct DCMotor
     int pwmPin;
 };
 
-int analogReadCorrection(int x)
+int analogReadCorrection(int x,int error=20)
 {
-    if ( abs(x)<10 )
+    if ( abs(x) < error )
     {
         x = 0;
     }
@@ -26,22 +26,22 @@ void motorHandling(MotorControlData &motorControlData,DCMotor &motor1, DCMotor &
     //choosing motor directions in DFRobot L298N 
     if (motorControlData.motor1speed<0)
     {
-      digitalWrite(motor1.controlPin,HIGH);
+      digitalWrite(motor1.controlPin,LOW);
     }
     else if(motorControlData.motor1speed>0)
     {
-      digitalWrite(motor1.controlPin,LOW);
+      digitalWrite(motor1.controlPin,HIGH);
     }
     analogWrite(motor1.pwmPin,abs(motorControlData.motor1speed));
     
     ///2nd motor
     if (motorControlData.motor2speed<0)
     {
-      digitalWrite(motor2.controlPin,LOW);
+      digitalWrite(motor2.controlPin,HIGH);
     }
     else if(motorControlData.motor2speed>0)
     {
-      digitalWrite(motor2.controlPin,HIGH);
+      digitalWrite(motor2.controlPin,LOW);
     }
     analogWrite(motor2.pwmPin,abs(motorControlData.motor2speed));
 }
