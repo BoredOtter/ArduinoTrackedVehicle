@@ -16,4 +16,4 @@ Simple remote control tracked vehicle based on Arduino UNO for controlling hardw
  - **Add some sensors and display**
  - **Think about application other than driving it for fun**
 ## Photo
-![git](https://user-images.githubusercontent.com/35179220/228341022-77a819b3-419b-4231-93e1-d67fede6a133.png)
+![rc](https://user-images.githubusercontent.com/35179220/228341906-3e3406bb-160c-4f12-914f-38e27e7c72c4.jpg)
