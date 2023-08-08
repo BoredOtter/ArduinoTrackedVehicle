@@ -52,10 +52,9 @@ void loop()
     motorControlData.motor2speed=analogReadCorrection(map(rightPosition,0,1023,255,-255),35);//right
 
     //serial debug info
-    Serial.print("CONTROLL ");
-    Serial.print("L: ");
+    Serial.print("L:");
     Serial.print(motorControlData.motor1speed);
-    Serial.print("  P: "); 
+    Serial.print(" R:"); 
     Serial.print(motorControlData.motor2speed);
     Serial.println();
     //

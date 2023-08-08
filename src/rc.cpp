@@ -14,8 +14,11 @@ MotorControlData motorControlData;
 DCMotor motor1; //left
 DCMotor motor2; //right
 
-unsigned long radioWaitCycle=0;
-const unsigned long radioTimeOut=30;
+unsigned long lastReceiveTime = 0;
+unsigned long currentTime = 0;
+unsigned long waitingTime = 0;
+
+bool logging = false; //enables loggin based on Serial.available()
 
 void setup() 
 {
@@ -45,53 +48,49 @@ void setup()
   radio.setPALevel(RF24_PA_MAX);       //You can set this as minimum or maximum depending on the distance between the transmitter and receiver.
   radio.startListening();              //This sets the module as receiver
 
-
+  if (Serial.available())
+  {
+    logging = true;
+  }
+  
 }
 
 
 void loop()
 {
 
-  if (radio.available())              //Looking for the data.
+  if (radio.available()) 
   {
+    lastReceiveTime = millis();
 
-    radio.read(&motorControlData, sizeof(motorControlData));    //Reading the data
-
-
-    //serial debug info
-    // Serial.print("RC: ");
-    // Serial.print(motorControlData.motor1speed);
-    // Serial.print("  ");
-    // Serial.print(motorControlData.motor2speed);
-    // Serial.println();
-    //
-
-    //motorHandling
+    radio.read(&motorControlData, sizeof(motorControlData));
     motorHandling(motorControlData,motor1,motor2);
-
-
-    radioWaitCycle=0;
   }
   else
   {
-    while (!radio.available())
-    {
-      delay(1);
-      radioWaitCycle++;
+    currentTime = millis();
 
-      if (radioWaitCycle>radioTimeOut)
-      {
-        // Serial.print("        Radio non availale: ");
-        // Serial.print(radioWaitCycle);
-        // Serial.println();
+    //Serial.print("WAIT_TIME: ");
+    waitingTime = (currentTime - lastReceiveTime);
+    //Serial.print(currentTime - lastReceiveTime);
+    //Serial.println();
 
-        motorControlData.motor1speed=0;
-        motorControlData.motor2speed=0;
-        motorHandling(motorControlData,motor1,motor2);
-      }
-      
+    if ( currentTime - lastReceiveTime > 50 ) 
+    { 
+      motorControlData.motor1speed=0;
+      motorControlData.motor2speed=0;
+      motorHandling(motorControlData,motor1,motor2);
     }
-    
+
   }
 
+
+  Serial.print(waitingTime);
+  Serial.print("  ");
+  Serial.print(motorControlData.motor1speed);
+  Serial.print("  ");
+  Serial.print(motorControlData.motor2speed);
+  Serial.print("  ");
+  Serial.println();
+  delay(10);
 }
