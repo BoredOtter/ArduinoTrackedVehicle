@@ -17,18 +17,10 @@ DCMotor motor2; //right
 unsigned long lastReceiveTime = 0;
 unsigned long currentTime = 0;
 unsigned long waitingTime = 0;
-
-bool logging = false; //enables loggin based on Serial.available()
+unsigned long timeOut = 20; //time in ms with no connection with rc after motorhandligdata will be set to 0
 
 void setup() 
 {
-  //DC motor setup using structs
-  // motor1.controlPin=7;
-  // motor1.pwmPin    =6;
-
-  // motor2.controlPin=4;
-  // motor2.pwmPin    =5;
-
   motor1.controlPin=4;
   motor1.pwmPin    =5;
 
@@ -46,13 +38,7 @@ void setup()
   radio.begin();
   radio.openReadingPipe(0, address);   //Setting the address at which we will receive the data
   radio.setPALevel(RF24_PA_MAX);       //You can set this as minimum or maximum depending on the distance between the transmitter and receiver.
-  radio.startListening();              //This sets the module as receiver
-
-  if (Serial.available())
-  {
-    logging = true;
-  }
-  
+  radio.startListening();              //This sets the module as receiver 
 }
 
 
@@ -61,21 +47,21 @@ void loop()
 
   if (radio.available()) 
   {
-    lastReceiveTime = millis();
-
     radio.read(&motorControlData, sizeof(motorControlData));
+    lastReceiveTime = millis(); //time of last reveice of data
+    
     motorHandling(motorControlData,motor1,motor2);
   }
   else
   {
     currentTime = millis();
+    waitingTime = ( currentTime - lastReceiveTime );
 
-    //Serial.print("WAIT_TIME: ");
-    waitingTime = (currentTime - lastReceiveTime);
-    //Serial.print(currentTime - lastReceiveTime);
-    //Serial.println();
+    Serial.print(" WAIT_TIME: ");
+    Serial.print( waitingTime );
+    Serial.println();
 
-    if ( currentTime - lastReceiveTime > 50 ) 
+    if ( waitingTime > timeOut ) 
     { 
       motorControlData.motor1speed=0;
       motorControlData.motor2speed=0;
@@ -84,13 +70,14 @@ void loop()
 
   }
 
-
-  Serial.print(waitingTime);
-  Serial.print("  ");
+  // idk why waitingTime only works correctly when displayed from else statement
+  // in case like below:
+  // Serial.print(" WAIT_TIME: ");
+  // Serial.print( waitingTime );
+  // blocks itself on 1700+ value
   Serial.print(motorControlData.motor1speed);
   Serial.print("  ");
   Serial.print(motorControlData.motor2speed);
-  Serial.print("  ");
   Serial.println();
-  delay(10);
+
 }
